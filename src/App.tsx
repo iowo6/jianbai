@@ -204,19 +204,15 @@ function RailInner() {
 function EmptyHome() {
   const createBlank = useStore((s) => s.createBlank)
   const createSample = useStore((s) => s.createSample)
-  const start = (fn: () => void) => {
-    fn()
-    api.focusWindow()
-  }
   return (
     <div className="empty-home">
       <h2>还没有简历</h2>
       <p>创建一份新简历开始编辑，数据只保存在你自己的电脑上。</p>
       <div className="empty-actions">
-        <Button variant="primary" onClick={() => start(createBlank)}>
+        <Button variant="primary" onClick={createBlank}>
           新建空白简历
         </Button>
-        <Button onClick={() => start(createSample)}>用示例看看效果</Button>
+        <Button onClick={createSample}>用示例看看效果</Button>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities'
 import type { ModuleType, ResumeData, ResumeModule } from '../../types'
 import { MODULE_META } from '../../defaults'
 import { useStore } from '../../store'
+import { api } from '../../api'
 import { Button, Input, Select } from '../ui'
 import { IconChevronDown, IconEye, IconEyeOff, IconGrip, IconPlus, IconTrash, ModuleIcon } from '../icons'
 import { BasicsEditor } from './BasicsEditor'
@@ -22,15 +23,22 @@ export function ContentPanel({ resume }: { resume: ResumeData }) {
   const moveModule = useStore((s) => s.moveModule)
   const [addOpen, setAddOpen] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-  const prevResumeId = useRef(resume.id)
+  const prevResumeId = useRef<string | null>(resume.id)
 
-  // 新建/切换简历后，显式把焦点交给第一个输入框（姓名），
-  // 否则 DOM 全量重建后焦点可能落在空白处，键盘输入无响应
+  // 新建/切换简历后，显式把焦点交给第一个输入框（姓名）。
+  // DOM 全量重建后 IME/TSF 焦点可能滞留旧位置导致键盘输入被吞，
+  // 因此聚焦两次：立即一次 + 120ms 后补一次（等窗口焦点与输入法状态稳定）。
   useEffect(() => {
     if (prevResumeId.current !== resume.id) {
       prevResumeId.current = resume.id
-      const el = document.querySelector<HTMLInputElement>('.module-card .field input')
-      el?.focus()
+      api.focusWindow()
+      const focusFirst = () => {
+        const el = document.querySelector<HTMLInputElement>('.module-card .field input')
+        if (el && document.activeElement !== el) el.focus()
+      }
+      focusFirst()
+      const t = setTimeout(focusFirst, 120)
+      return () => clearTimeout(t)
     }
   }, [resume.id])
 

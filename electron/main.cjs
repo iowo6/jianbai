@@ -183,6 +183,7 @@ ipcMain.on('focus-window', () => {
   if (mainWindow.isMinimized()) mainWindow.restore()
   mainWindow.show()
   mainWindow.focus()
+  mainWindow.webContents.focus()
 })
 
 /* ---------------- 简历文件导入解析（PDF / DOCX / TXT / MD → 纯文本） ---------------- */
