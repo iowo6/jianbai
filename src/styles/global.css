@@ -390,6 +390,42 @@ body.dnd-drag .resizer {
   color: var(--accent);
 }
 
+/* ---------- 应用内确认对话框 ---------- */
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: ui-fade 0.15s ease both;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  padding: 18px;
+  width: 340px;
+  max-width: calc(100vw - 48px);
+  animation: ui-pop 0.16s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+}
+
+.modal-text {
+  margin: 0 0 16px;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .flex-spacer {
   flex: 1;
 }

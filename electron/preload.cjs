@@ -9,5 +9,5 @@ contextBridge.exposeInMainWorld('api', {
   importParse: () => ipcRenderer.invoke('import:parse'),
   printReady: (payload) => ipcRenderer.send('print:ready', payload),
   showItem: (p) => ipcRenderer.invoke('shell:show-item', p),
-  focusWindow: () => ipcRenderer.send('focus-window')
+  focusWindow: () => ipcRenderer.invoke('focus-window')
 })

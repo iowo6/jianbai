@@ -199,7 +199,8 @@ ipcMain.handle('shell:show-item', (_e, p) => {
 })
 
 // 把窗口拉回前台并赋予焦点（修复新建/切换简历后输入框不响应键盘的问题）
-ipcMain.on('focus-window', () => {
+// 使用 handle 模式让渲染进程可以 await 窗口焦点恢复完成后再聚焦输入框
+ipcMain.handle('focus-window', () => {
   if (!mainWindow) return
   if (mainWindow.isMinimized()) mainWindow.restore()
   mainWindow.show()

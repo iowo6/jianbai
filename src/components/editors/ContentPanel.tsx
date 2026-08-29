@@ -26,19 +26,20 @@ export function ContentPanel({ resume }: { resume: ResumeData }) {
   const prevResumeId = useRef<string | null>(resume.id)
 
   // 新建/切换简历后，显式把焦点交给第一个输入框（姓名）。
-  // DOM 全量重建后 IME/TSF 焦点可能滞留旧位置导致键盘输入被吞，
-  // 因此聚焦两次：立即一次 + 120ms 后补一次（等窗口焦点与输入法状态稳定）。
+  // 先 await focusWindow 确保窗口获得 OS 级键盘焦点，再聚焦 DOM 元素，
+  // 否则 IME/TSF 可能吞掉键盘输入（表现为无法输入，Alt+Tab 后恢复）。
   useEffect(() => {
     if (prevResumeId.current !== resume.id) {
       prevResumeId.current = resume.id
-      api.focusWindow()
       const focusFirst = () => {
         const el = document.querySelector<HTMLInputElement>('.module-card .field input')
         if (el && document.activeElement !== el) el.focus()
       }
-      focusFirst()
-      const t = setTimeout(focusFirst, 120)
-      return () => clearTimeout(t)
+      api.focusWindow().then(() => {
+        focusFirst()
+        // 再补一次延迟聚焦，确保输入法状态稳定
+        setTimeout(focusFirst, 120)
+      })
     }
   }, [resume.id])
 

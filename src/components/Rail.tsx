@@ -20,6 +20,7 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
   const importResumes = useStore((s) => s.importResumes)
   const showToast = useStore((s) => s.showToast)
   const [helpOpen, setHelpOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<ResumeData | null>(null)
 
   const doImportFile = async () => {
     const res = await api.importParse()
@@ -49,8 +50,23 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
     if (res.ok) showToast('备份已导出：' + res.path)
   }
 
+  // 删除确认使用应用内对话框：window.confirm 等原生弹窗会抢占 OS 键盘焦点，
+  // 关闭后输入上下文（TSF）损坏导致无法输入；应用内弹窗完全没有这个问题
   const doRemove = (r: ResumeData) => {
-    if (window.confirm(`确定删除「${r.name}」？该操作不可恢复。`)) remove(r.id)
+    setPendingDelete(r)
+  }
+
+  const confirmRemove = () => {
+    if (!pendingDelete) return
+    const name = pendingDelete.name
+    remove(pendingDelete.id)
+    setPendingDelete(null)
+    showToast(`已删除「${name}」`)
+    // 焦点交给编辑器里第一个可见输入框，删除后可直接继续输入
+    api.focusWindow().then(() => {
+      const inputs = Array.from(document.querySelectorAll<HTMLInputElement>('.module-card .field input'))
+      inputs.find((el) => el.offsetParent !== null)?.focus()
+    })
   }
 
   return (
@@ -132,6 +148,20 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
           <IconKeyboard size={13} /> 快捷键
         </button>
       </div>
+
+      {pendingDelete && (
+        <div className="modal-mask" onClick={() => setPendingDelete(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <p className="modal-text">确定删除「{pendingDelete.name}」？该操作不可恢复。</p>
+            <div className="modal-actions">
+              <Button onClick={() => setPendingDelete(null)}>取消</Button>
+              <Button variant="danger" onClick={confirmRemove}>
+                删除
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

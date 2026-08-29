@@ -143,13 +143,19 @@ function Shell() {
   }, [])
 
   // 焦点自愈与诊断：
-  // 偶发场景下窗口层级键盘焦点丢失——点击输入框能落焦点但真实按键不响应，
-  // 这里在点击可输入元素时检测 document.hasFocus()，丢失则立即恢复窗口焦点并重新聚焦。
+  // 偶发场景下窗口层级键盘焦点丢失——点击输入框能落焦点但真实按键不响应。
+  // 核心问题：window.confirm 等原生弹窗关闭后，document.hasFocus() 为 true
+  // 但 IME/TSF 输入上下文已损坏。此时需要 blur+focus 循环重置。
+  // 通过 wasBlurred 标记追踪窗口是否曾失去焦点，点击可编辑元素时触发重置。
   useEffect(() => {
     const debug = localStorage.getItem('debug-focus') === '1'
     const log = (...args: unknown[]) => {
       if (debug) console.log('[focus-diag]', ...args)
     }
+
+    let wasBlurred = false
+    const onWindowBlur = () => { wasBlurred = true }
+    const onWindowFocus = () => { wasBlurred = true }
 
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null
@@ -158,23 +164,31 @@ function Shell() {
       setTimeout(() => {
         if (!document.hasFocus()) {
           log('keyboard focus lost on click -> recover')
-          api.focusWindow()
-          editable.focus()
-          log('recovered, active=', document.activeElement?.tagName)
+          api.focusWindow().then(() => {
+            editable.focus()
+            log('recovered, active=', document.activeElement?.tagName)
+          })
+          wasBlurred = false
+        } else if (wasBlurred) {
+          // 窗口有焦点但 wasBlurred 为 true：confirm 弹窗等场景导致 IME/TSF 损坏
+          log('wasBlurred, force blur+focus cycle to reset IME/TSF')
+          wasBlurred = false
+          ;(editable as HTMLElement).blur()
+          setTimeout(() => (editable as HTMLElement).focus(), 0)
         }
       }, 0)
     }
     window.addEventListener('pointerdown', onPointerDown, true)
+    window.addEventListener('blur', onWindowBlur)
+    window.addEventListener('focus', onWindowFocus)
 
     const onFocusChange = () => log('hasFocus=', document.hasFocus(), 'active=', document.activeElement?.tagName)
-    window.addEventListener('focus', onFocusChange)
-    window.addEventListener('blur', onFocusChange)
     const poll = setInterval(onFocusChange, 1500)
 
     return () => {
       window.removeEventListener('pointerdown', onPointerDown, true)
-      window.removeEventListener('focus', onFocusChange)
-      window.removeEventListener('blur', onFocusChange)
+      window.removeEventListener('blur', onWindowBlur)
+      window.removeEventListener('focus', onWindowFocus)
       clearInterval(poll)
     }
   }, [])

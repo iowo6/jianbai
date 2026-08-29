@@ -90,5 +90,5 @@ export interface Api {
   importParse(): Promise<{ text?: string; fileName?: string; error?: string } | null>
   printReady(p: { id: string; size: PageSize }): void
   showItem(p: string): void
-  focusWindow(): void
+  focusWindow(): Promise<void>
 }
