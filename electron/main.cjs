@@ -177,6 +177,14 @@ ipcMain.handle('shell:show-item', (_e, p) => {
   if (p && fs.existsSync(p)) shell.showItemInFolder(p)
 })
 
+// 把窗口拉回前台并赋予焦点（修复新建/切换简历后输入框不响应键盘的问题）
+ipcMain.on('focus-window', () => {
+  if (!mainWindow) return
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
+})
+
 /* ---------------- 简历文件导入解析（PDF / DOCX / TXT / MD → 纯文本） ---------------- */
 
 ipcMain.handle('import:parse', async () => {

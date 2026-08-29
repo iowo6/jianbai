@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('api', {
   exportJson: (data) => ipcRenderer.invoke('data:export', data),
   importParse: () => ipcRenderer.invoke('import:parse'),
   printReady: (payload) => ipcRenderer.send('print:ready', payload),
-  showItem: (p) => ipcRenderer.invoke('shell:show-item', p)
+  showItem: (p) => ipcRenderer.invoke('shell:show-item', p),
+  focusWindow: () => ipcRenderer.send('focus-window')
 })

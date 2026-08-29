@@ -24,7 +24,8 @@ const fallback: Api = {
   exportJson: async () => ({ ok: false, error: '请在桌面版中使用导出功能' }),
   importParse: async () => ({ error: '请在桌面版中使用导入功能' }),
   printReady: () => {},
-  showItem: () => {}
+  showItem: () => {},
+  focusWindow: () => {}
 }
 
 export const api: Api = window.api ?? fallback

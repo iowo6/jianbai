@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent, Modifier } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -22,6 +22,17 @@ export function ContentPanel({ resume }: { resume: ResumeData }) {
   const moveModule = useStore((s) => s.moveModule)
   const [addOpen, setAddOpen] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const prevResumeId = useRef(resume.id)
+
+  // 新建/切换简历后，显式把焦点交给第一个输入框（姓名），
+  // 否则 DOM 全量重建后焦点可能落在空白处，键盘输入无响应
+  useEffect(() => {
+    if (prevResumeId.current !== resume.id) {
+      prevResumeId.current = resume.id
+      const el = document.querySelector<HTMLInputElement>('.module-card .field input')
+      el?.focus()
+    }
+  }, [resume.id])
 
   const modules = resume.modules
   const basics = modules.find((m) => m.type === 'basics')

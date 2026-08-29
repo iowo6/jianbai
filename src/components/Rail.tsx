@@ -29,8 +29,19 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
       const baseName = (res.fileName || '导入的简历').replace(/\.(pdf|docx|txt|md)$/i, '')
       const r = parseResumeText(res.text, baseName)
       importResumes([r])
+      api.focusWindow()
       showToast('已导入并解析，请检查内容后修正')
     }
+  }
+
+  const createBlankAndFocus = () => {
+    createBlank()
+    api.focusWindow()
+  }
+
+  const createSampleAndFocus = () => {
+    createSample()
+    api.focusWindow()
   }
 
   const doImport = async () => {
@@ -63,10 +74,10 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
       </div>
 
       <div className="rail-actions">
-        <Button variant="soft" onClick={createBlank}>
+        <Button variant="soft" onClick={createBlankAndFocus}>
           <IconFilePlus size={14} /> 空白简历
         </Button>
-        <Button variant="soft" onClick={createSample}>
+        <Button variant="soft" onClick={createSampleAndFocus}>
           <IconSparkles size={14} /> 示例简历
         </Button>
       </div>
