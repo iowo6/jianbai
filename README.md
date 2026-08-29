@@ -2,7 +2,9 @@
 
 一款**本地优先、所见即所得**的极简简历编辑器。
 
-![简白 · 极简简历排版预览](docs/screenshot.png)
+![软件工作区](docs/app-screenshot.png)
+
+![简历排版预览](docs/resume-preview.png)
 
 - 数据 100% 保存在本地，不上传任何服务器
 - 编辑区与 PDF 由同一套渲染组件生成，导出与预览**像素级一致**
