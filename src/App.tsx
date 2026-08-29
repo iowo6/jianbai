@@ -142,6 +142,43 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // 焦点自愈与诊断：
+  // 偶发场景下窗口层级键盘焦点丢失——点击输入框能落焦点但真实按键不响应，
+  // 这里在点击可输入元素时检测 document.hasFocus()，丢失则立即恢复窗口焦点并重新聚焦。
+  useEffect(() => {
+    const debug = localStorage.getItem('debug-focus') === '1'
+    const log = (...args: unknown[]) => {
+      if (debug) console.log('[focus-diag]', ...args)
+    }
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null
+      const editable = target?.closest('input, textarea, [contenteditable="true"]') as HTMLElement | null
+      if (!editable) return
+      setTimeout(() => {
+        if (!document.hasFocus()) {
+          log('keyboard focus lost on click -> recover')
+          api.focusWindow()
+          editable.focus()
+          log('recovered, active=', document.activeElement?.tagName)
+        }
+      }, 0)
+    }
+    window.addEventListener('pointerdown', onPointerDown, true)
+
+    const onFocusChange = () => log('hasFocus=', document.hasFocus(), 'active=', document.activeElement?.tagName)
+    window.addEventListener('focus', onFocusChange)
+    window.addEventListener('blur', onFocusChange)
+    const poll = setInterval(onFocusChange, 1500)
+
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown, true)
+      window.removeEventListener('focus', onFocusChange)
+      window.removeEventListener('blur', onFocusChange)
+      clearInterval(poll)
+    }
+  }, [])
+
   if (!loaded) {
     return (
       <div className="splash">

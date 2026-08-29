@@ -77,6 +77,27 @@ ipcMain.handle('storage:save', (_e, data) => {
   const file = storageFile()
   const tmp = file + '.tmp'
   fs.mkdirSync(path.dirname(file), { recursive: true })
+
+  // 备份轮换：覆盖前把当前文件留档，保留最近 10 份（内容有变化时才留）
+  try {
+    if (fs.existsSync(file)) {
+      const prev = fs.readFileSync(file, 'utf-8')
+      const next = JSON.stringify(data)
+      if (prev !== next) {
+        const backupDir = path.join(app.getPath('userData'), 'backups')
+        fs.mkdirSync(backupDir, { recursive: true })
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+        fs.writeFileSync(path.join(backupDir, `resumes-${stamp}.json`), prev, 'utf-8')
+        const backups = fs.readdirSync(backupDir).filter((f) => f.endsWith('.json')).sort()
+        while (backups.length > 10) {
+          fs.unlinkSync(path.join(backupDir, backups.shift()))
+        }
+      }
+    }
+  } catch {
+    /* 备份失败不影响正常保存 */
+  }
+
   fs.writeFileSync(tmp, JSON.stringify(data), 'utf-8')
   fs.renameSync(tmp, file)
   return true
