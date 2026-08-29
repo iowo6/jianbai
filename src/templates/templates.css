@@ -1,0 +1,349 @@
+/* ============================================================
+   简历模板样式 —— 预览与 PDF 导出共用
+   设计原则：默认极简纯文本，装饰元素全部由开关控制
+   ============================================================ */
+
+.rz-root {
+  --rz-accent: #1f2328;
+  --rz-font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --rz-fs: 10.5pt;
+  --rz-lh: 1.5;
+  --rz-pad: 16mm;
+  --rz-gap: 6mm;
+
+  font-family: var(--rz-font);
+  font-size: var(--rz-fs);
+  line-height: var(--rz-lh);
+  color: #1f2328;
+  text-align: left;
+}
+
+.rz-paper {
+  background: #fff;
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+}
+
+.rz-paper.rz-letter {
+  width: 216mm;
+  min-height: 279mm;
+}
+
+.rz-body {
+  padding: var(--rz-pad);
+}
+
+/* 分页结构：测量层（隐藏且不占空间）与页容器 */
+.rz-measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.rz-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 8mm;
+}
+
+/* ---------- 头部 ---------- */
+
+.rz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6mm;
+}
+
+.rz-header.rz-center {
+  display: block;
+  text-align: center;
+}
+
+.rz-header-main {
+  min-width: 0;
+}
+
+.rz-name {
+  font-size: 2.05em;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  color: var(--rz-accent);
+  letter-spacing: 0.02em;
+}
+
+.rz-headline {
+  margin-top: 1mm;
+  color: #4b5563;
+  font-size: 1.05em;
+}
+
+.rz-contacts {
+  margin-top: 1.6mm;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6mm 4mm;
+  color: #57606a;
+  font-size: 0.92em;
+}
+
+.rz-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rz-contact svg {
+  flex: none;
+  color: var(--rz-accent);
+}
+
+/* 照片：保持原始宽高比，不裁剪；以 20mm 高为基准等比缩放 */
+.rz-photo {
+  height: 20mm;
+  width: auto;
+  max-width: 60mm;
+  object-fit: contain;
+  flex: none;
+  align-self: flex-start;
+  border-radius: 2px;
+}
+
+.rz-photo-center {
+  height: 22mm;
+  width: auto;
+  max-width: 60mm;
+  margin: 0 auto 2mm;
+  display: block;
+  border-radius: 2px;
+}
+
+/* 分隔线开启时：头部下方一条细线（头部为页面首块） */
+.rz-divider-on .rz-blk:first-child .rz-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--rz-accent) 22%, #e5e7eb);
+  padding-bottom: 3mm;
+  margin-bottom: 0;
+}
+
+/* ---------- 区块 ---------- */
+
+/* 分页块间距：相邻块之间保留模块间距，每页首块贴顶 */
+.rz-blk + .rz-blk {
+  margin-top: var(--rz-gap);
+}
+
+.rz-section {
+  margin-top: 0;
+}
+
+.rz-sec-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--rz-accent);
+  letter-spacing: 0.05em;
+  margin: 0 0 1.6mm;
+  padding-bottom: 1mm;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rz-divider-on .rz-sec-title {
+  border-bottom: 1px solid color-mix(in srgb, var(--rz-accent) 16%, #e5e7eb);
+}
+
+.rz-sec-title svg {
+  flex: none;
+}
+
+/* ---------- 条目 ---------- */
+
+.rz-entry {
+  margin-bottom: 2.6mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.rz-entry:last-child {
+  margin-bottom: 0;
+}
+
+.rz-entry-head {
+  display: flex;
+  align-items: baseline;
+  gap: 3mm;
+  flex-wrap: wrap;
+}
+
+.rz-e-title {
+  font-weight: 600;
+}
+
+.rz-e-sub,
+.rz-e-loc {
+  color: #57606a;
+}
+
+.rz-e-date {
+  margin-left: auto;
+  color: #57606a;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 富文本 ---------- */
+
+.rz-rich {
+  margin-top: 0.8mm;
+}
+
+.rz-rich p,
+.rz-rich div {
+  margin: 0;
+}
+
+.rz-rich ul,
+.rz-rich ol {
+  margin: 0;
+  padding-left: 1.5em;
+}
+
+.rz-rich li {
+  margin: 0.6mm 0;
+}
+
+.rz-rich li::marker {
+  color: #6b7280;
+}
+
+.rz-rich a {
+  color: inherit;
+}
+
+.rz-rich b,
+.rz-rich strong {
+  font-weight: 600;
+}
+
+/* ---------- 标签 ---------- */
+
+.rz-tags {
+  margin-top: 0.8mm;
+  color: #57606a;
+  font-size: 0.92em;
+}
+
+.rz-tags-pill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm;
+}
+
+.rz-pill {
+  border: 1px solid #d0d7de;
+  border-radius: 3px;
+  padding: 0 1.6mm;
+  font-size: 0.9em;
+}
+
+/* ---------- 技能 ---------- */
+
+.rz-skill-line {
+  display: flex;
+  align-items: center;
+  gap: 1mm;
+  flex-wrap: wrap;
+}
+
+.rz-skill-tags {
+  color: #57606a;
+}
+
+.rz-skillbar {
+  width: 30mm;
+  height: 1.6mm;
+  background: #eaeef2;
+  border-radius: 1mm;
+  margin-left: 2mm;
+  overflow: hidden;
+}
+
+.rz-skillbar i {
+  display: block;
+  height: 100%;
+  background: var(--rz-accent);
+}
+
+/* ---------- 双栏 ---------- */
+
+.rz-cols {
+  display: flex;
+  gap: 8mm;
+  align-items: flex-start;
+}
+
+.rz-col-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rz-col-side {
+  width: 32%;
+  flex: none;
+  min-width: 0;
+}
+
+.rz-col-side .rz-section:first-of-type {
+  margin-top: 0;
+}
+
+.rz-col-main .rz-section:first-of-type {
+  margin-top: 0;
+}
+
+/* ---------- 打印 ---------- */
+
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  .rz-measure {
+    display: none !important;
+  }
+
+  .rz-doc {
+    gap: 0;
+  }
+
+  /* 每一页纸强制从新页开始 */
+  .rz-doc .rz-paper:not(:first-child) {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .rz-paper {
+    box-shadow: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    width: auto;
+    min-height: 0;
+  }
+
+  .rz-a4 {
+    width: 210mm;
+  }
+
+  .rz-letter {
+    width: 216mm;
+  }
+}

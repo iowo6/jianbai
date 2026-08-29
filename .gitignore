@@ -1,0 +1,16 @@
+node_modules/
+dist/
+release/
+out/
+docs-tmp.pdf
+*.log
+build-log.txt
+app-log.txt
+dev-log*.txt
+qa-*.png
+tmp-*.js
+tmp-*.cjs
+.DS_Store
+*.local
+test-output.pdf
+产品方案.md

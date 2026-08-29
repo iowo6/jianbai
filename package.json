@@ -1,0 +1,78 @@
+{
+  "name": "jianbai",
+  "productName": "简白",
+  "version": "1.1.0",
+  "description": "简白 · 本地优先、所见即所得的极简简历编辑器，支持导出与预览一致的 ATS 友好 PDF",
+  "private": true,
+  "main": "electron/main.cjs",
+  "author": "简白 contributors",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "start": "electron .",
+    "test:pdf": "electron scripts/test-export.cjs",
+    "dist": "vite build && electron-builder"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "mammoth": "^1.12.2",
+    "pdf-parse": "^2.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.jianbai.app",
+    "productName": "简白",
+    "executableName": "JianBai",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "build/icon.ico"
+    ],
+    "asarUnpack": [
+      "node_modules/pdf-parse/**",
+      "node_modules/mammoth/**"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "JianBai-${version}-setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "license": "build/license.txt",
+      "shortcutName": "简白"
+    }
+  }
+}
