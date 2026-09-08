@@ -6,14 +6,13 @@ import { CSS } from '@dnd-kit/utilities'
 import { useStore } from '../../store'
 import type { ModuleType, ResumeItem, ResumeModule } from '../../types'
 import { Button, Input } from '../ui'
-import { IconArrowDown, IconArrowUp, IconChevronDown, IconGrip, IconTrash } from '../icons'
+import { IconArrowDown, IconArrowUp, IconChevronDown, IconGrip, IconPlus, IconTrash, IconX } from '../icons'
 import { RichTextEditor } from '../RichTextEditor'
 
 const ITEM_LABELS: Partial<Record<ModuleType, { title: string; subtitle: string }>> = {
   experience: { title: '职位名称', subtitle: '公司名称' },
   education: { title: '学校名称', subtitle: '专业 · 学历' },
   projects: { title: '项目名称', subtitle: '角色 / 链接' },
-  skills: { title: '技能类别', subtitle: '说明（可不填）' },
   certificates: { title: '证书名称', subtitle: '颁发机构' },
   custom: { title: '条目标题', subtitle: '副标题' }
 }
@@ -22,6 +21,7 @@ const BULLET_LABELS: Partial<Record<ModuleType, string>> = {
   experience: '工作内容（支持加粗、列表）',
   education: '在校经历 / 课程（支持列表）',
   projects: '项目描述（支持列表）',
+  skills: '技能描述（支持加粗、列表）',
   certificates: '备注（可选）'
 }
 
@@ -30,6 +30,89 @@ const verticalOnly: Modifier = ({ transform }) => ({ ...transform, x: 0 })
 
 function hasContent(it: ResumeItem): boolean {
   return !!(it.title || it.subtitle || it.start || it.end || it.location || it.bullets || it.tags.length)
+}
+
+/** 技能条目折叠栏标题：取描述纯文本前几个字 */
+function descExcerpt(html: string): string {
+  const text = html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.length > 16 ? text.slice(0, 16) + '…' : text
+}
+
+const TAG_SEPARATORS = /[,，、;；]/
+
+/** 标签块编辑器：一个标签一个块，回车 / 分隔符 / ＋号添加，块上 × 删除 */
+function TagsEditor({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+  const [draft, setDraft] = useState('')
+
+  const addParts = (parts: string[]) => {
+    const next = [...tags]
+    for (const p of parts) {
+      const t = p.trim()
+      if (t && !next.includes(t)) next.push(t)
+    }
+    if (next.length !== tags.length) onChange(next)
+  }
+
+  const commit = () => {
+    if (!draft.trim()) return
+    addParts([draft])
+    setDraft('')
+  }
+
+  const onDraft = (v: string) => {
+    if (!TAG_SEPARATORS.test(v)) {
+      setDraft(v)
+      return
+    }
+    // 打出分隔符立即成块，最后一段视为未完成留在输入框
+    const segs = v.split(TAG_SEPARATORS)
+    const rest = segs.pop() ?? ''
+    addParts(segs)
+    setDraft(rest)
+  }
+
+  return (
+    <div
+      className="tags-editor"
+      onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}
+    >
+      {tags.map((t, i) => (
+        <span className="tag-chip" key={`${t}-${i}`}>
+          {t}
+          <button
+            type="button"
+            className="tag-x"
+            title="删除此标签"
+            onClick={() => onChange(tags.filter((_, j) => j !== i))}
+          >
+            <IconX size={10} />
+          </button>
+        </span>
+      ))}
+      <input
+        className="tag-input"
+        value={draft}
+        placeholder={tags.length ? '' : '输入标签，回车确认'}
+        onChange={(e) => onDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            commit()
+          } else if (e.key === 'Backspace' && !draft && tags.length) {
+            onChange(tags.slice(0, -1))
+          }
+        }}
+        onBlur={commit}
+      />
+      <button type="button" className="tag-add" title="添加标签" onClick={commit}>
+        <IconPlus size={12} />
+      </button>
+    </div>
+  )
 }
 
 export function ItemsEditor({ module: m }: { module: ResumeModule }) {
@@ -73,13 +156,8 @@ export function ItemsEditor({ module: m }: { module: ResumeModule }) {
           addItem(m.id)
         }}
       >
-        + 添加{ITEM_LABELS[m.type]?.title ?? '条目'}
+        + 添加{isSkills ? '技能描述' : (ITEM_LABELS[m.type]?.title ?? '条目')}
       </Button>
-      {isSkills && (
-        <p className="form-hint">
-          技能条与胶囊标签默认关闭，可在「设计 → 装饰元素」中开启；默认渲染为「类别：技能 · 技能」的纯文本行。
-        </p>
-      )}
       <p className="form-hint">拖住条目标题栏左侧的手柄可以上下调整顺序。</p>
     </div>
   )
@@ -94,10 +172,6 @@ function ItemCard({ module: m, item, index, total }: { module: ResumeModule; ite
 
   const labels = ITEM_LABELS[m.type] ?? { title: '标题', subtitle: '副标题' }
   const isSkills = m.type === 'skills'
-
-  const setTags = (raw: string) => {
-    updateItem(m.id, item.id, { tags: raw.split(/[,，、;；]/).map((s) => s.trim()).filter(Boolean) })
-  }
 
   return (
     <div
@@ -122,7 +196,9 @@ function ItemCard({ module: m, item, index, total }: { module: ResumeModule; ite
           <IconGrip size={13} />
         </button>
         <IconChevronDown size={14} className={`chev ${open ? 'down' : ''}`} />
-        <span className="item-title">{item.title || `未命名${labels.title}`}</span>
+        <span className="item-title">
+          {isSkills ? descExcerpt(item.bullets) || '未命名技能描述' : item.title || `未命名${labels.title}`}
+        </span>
         {(item.start || item.end) && (
           <span className="item-dates">
             {item.start}
@@ -134,30 +210,34 @@ function ItemCard({ module: m, item, index, total }: { module: ResumeModule; ite
       <div className="item-collapse">
         <div className="item-body" onClick={(e) => e.stopPropagation()}>
           <div className="item-body-inner">
-            <div className="grid2">
-              <label className="field">
-                <span className="field-label">{labels.title}</span>
-                <Input value={item.title} onChange={(e) => updateItem(m.id, item.id, { title: e.target.value })} />
-              </label>
-              <label className="field">
-                <span className="field-label">{labels.subtitle}</span>
-                <Input value={item.subtitle} onChange={(e) => updateItem(m.id, item.id, { subtitle: e.target.value })} />
-              </label>
-            </div>
-            <div className="grid3">
-              <label className="field">
-                <span className="field-label">开始时间</span>
-                <Input value={item.start} placeholder="2023.07" onChange={(e) => updateItem(m.id, item.id, { start: e.target.value })} />
-              </label>
-              <label className="field">
-                <span className="field-label">结束时间</span>
-                <Input value={item.end} placeholder="至今" onChange={(e) => updateItem(m.id, item.id, { end: e.target.value })} />
-              </label>
-              <label className="field">
-                <span className="field-label">地点（可选）</span>
-                <Input value={item.location} onChange={(e) => updateItem(m.id, item.id, { location: e.target.value })} />
-              </label>
-            </div>
+            {!isSkills && (
+              <>
+                <div className="grid2">
+                  <label className="field">
+                    <span className="field-label">{labels.title}</span>
+                    <Input value={item.title} onChange={(e) => updateItem(m.id, item.id, { title: e.target.value })} />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">{labels.subtitle}</span>
+                    <Input value={item.subtitle} onChange={(e) => updateItem(m.id, item.id, { subtitle: e.target.value })} />
+                  </label>
+                </div>
+                <div className="grid3">
+                  <label className="field">
+                    <span className="field-label">开始时间</span>
+                    <Input value={item.start} placeholder="2023.07" onChange={(e) => updateItem(m.id, item.id, { start: e.target.value })} />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">结束时间</span>
+                    <Input value={item.end} placeholder="至今" onChange={(e) => updateItem(m.id, item.id, { end: e.target.value })} />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">地点（可选）</span>
+                    <Input value={item.location} onChange={(e) => updateItem(m.id, item.id, { location: e.target.value })} />
+                  </label>
+                </div>
+              </>
+            )}
             <div className="field">
               <span className="field-label">{BULLET_LABELS[m.type] ?? '描述（支持列表）'}</span>
               <RichTextEditor
@@ -167,25 +247,12 @@ function ItemCard({ module: m, item, index, total }: { module: ResumeModule; ite
                 minHeight={70}
               />
             </div>
-            <div className={isSkills ? 'grid2' : 'grid1'}>
-              <label className="field">
-                <span className="field-label">标签（用逗号分隔）</span>
-                <Input value={item.tags.join('、')} onChange={(e) => setTags(e.target.value)} placeholder="React、TypeScript" />
-              </label>
-              {isSkills && (
-                <label className="field">
-                  <span className="field-label">熟练度（仅技能条模式使用）：{item.level} / 5</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={5}
-                    value={item.level}
-                    onChange={(e) => updateItem(m.id, item.id, { level: Number(e.target.value) })}
-                    className="slider"
-                  />
-                </label>
-              )}
-            </div>
+            {!isSkills && (
+              <div className="field">
+                <span className="field-label">标签（回车或 + 添加）</span>
+                <TagsEditor tags={item.tags} onChange={(tags) => updateItem(m.id, item.id, { tags })} />
+              </div>
+            )}
             <div className="item-actions">
               <Button size="sm" disabled={index === 0} onClick={() => moveItem(m.id, item.id, -1)}>
                 <IconArrowUp size={13} />

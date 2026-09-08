@@ -209,9 +209,10 @@ export function sampleResume(): ResumeData {
 
   const skills = r.modules.find((m) => m.type === 'skills')!
   skills.items = list([
-    { title: '前端开发', tags: ['React', 'Vue', 'TypeScript', 'HTML / CSS'] },
-    { title: '工程化', tags: ['Vite', 'Webpack', 'CI / CD', '单元测试'] },
-    { title: '其他', tags: ['Node.js', 'Git', 'Docker', 'MySQL'] }
+    {
+      bullets:
+        '<ul><li>前端开发：React、Vue、TypeScript、HTML / CSS</li><li>工程化：Vite、Webpack、CI / CD、单元测试</li><li>其他：Node.js、Git、Docker、MySQL</li></ul>'
+    }
   ])
 
   const summary = r.modules.find((m) => m.type === 'summary')!

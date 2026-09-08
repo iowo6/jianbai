@@ -973,6 +973,97 @@ body.dnd-drag .resizer {
   color: var(--accent);
 }
 
+/* ---------- 标签块编辑器 ---------- */
+
+.tags-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  cursor: text;
+}
+
+.tags-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.12);
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  padding: 1px 3px 1px 8px;
+  border-radius: 5px;
+  background: var(--soft);
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tag-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tag-x:hover {
+  background: var(--hover);
+  color: var(--danger);
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 56px;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 2px 0;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.tag-input::placeholder {
+  color: var(--muted);
+}
+
+.tag-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tag-add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ---------- 富文本编辑器 ---------- */
 
 .rte {

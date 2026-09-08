@@ -168,9 +168,17 @@ function SectionBody({ m, items, theme }: { m: ResumeModule; items?: ResumeItem[
   if (m.type === 'skills') {
     return (
       <>
-        {list.map((it) => (
-          <SkillRow key={it.id} item={it} theme={theme} />
-        ))}
+        {list.map((it) =>
+          it.bullets ? (
+            // 描述型技能条目：直接渲染富文本
+            <div className="rz-entry rz-skill" key={it.id}>
+              <div className="rz-rich" dangerouslySetInnerHTML={{ __html: it.bullets }} />
+            </div>
+          ) : (
+            // 兼容旧数据：标题+标签写法的「类别：技能 · 技能」行
+            <SkillRow key={it.id} item={it} theme={theme} />
+          )
+        )}
       </>
     )
   }
