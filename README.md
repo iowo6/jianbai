@@ -52,6 +52,21 @@ npm run dist       # 打包 Windows 安装包（输出到 out/）
 npm run typecheck  # TypeScript 类型检查
 ```
 
+## 发布
+
+通过 GitHub Actions 自动打包发布：推送 `v*` 标签即会在 Windows 虚拟机上构建并创建 GitHub Release。
+
+1. 更新 `package.json` 中的版本号并提交（标签必须与版本号一致，否则构建失败）
+2. 可选：在仓库根目录放一个 `release-notes.md`，内容将作为 Release 的更新说明（不提供则自动按提交记录生成）
+3. 打标签并推送：
+
+```bash
+git tag v1.3.0
+git push origin v1.3.0
+```
+
+4. 到仓库 Actions 页查看构建进度，完成后 Release 自动出现在 Releases 页，产物为 `JianBai-<版本>-setup.exe`
+
 ## 数据位置
 
 所有简历保存在 `%APPDATA%\简白\resumes.json`（Windows），换机迁移直接拷贝该文件或使用应用内「导出备份 / 导入备份」。旧版本（简历制作机）的数据会在首次启动时自动迁移。

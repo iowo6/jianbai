@@ -1,0 +1,58 @@
+name: Release
+
+# 推送 v* 标签时自动打包并发布 GitHub Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 校验标签与 package.json 版本一致
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          if [ "v$PKG_VER" != "$TAG" ]; then
+            echo "::error::标签 $TAG 与 package.json 版本 $PKG_VER 不一致，请先更新版本号"
+            exit 1
+          fi
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 打包安装程序
+        run: npm run dist
+
+      - name: 发布 Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          # 优先使用仓库根目录的 release-notes.md 作为更新说明，否则自动生成
+          if [ -f release-notes.md ]; then
+            gh release create "$TAG" out/JianBai-*-setup.exe \
+              --title "简白 $TAG" --notes-file release-notes.md
+          else
+            gh release create "$TAG" out/JianBai-*-setup.exe \
+              --title "简白 $TAG" --generate-notes
+          fi
