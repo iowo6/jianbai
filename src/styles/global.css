@@ -454,23 +454,56 @@ body.dnd-drag .resizer {
 .modal-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  animation: ui-fade 0.15s ease both;
+  animation: ui-fade 0.25s ease both;
+  transition: opacity 0.2s var(--ease-out-quart);
 }
 
+.modal-mask.closing {
+  opacity: 0;
+}
+
+/* 模态弹窗 = 真实层叠 → 液态玻璃；入场材质化（模糊+缩放+透明度一起），退场同路径 */
 .modal {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid var(--border);
   border-radius: var(--r-sheet);
   box-shadow: var(--sh-overlay);
-  padding: 18px;
+  padding: 20px;
   width: 340px;
   max-width: calc(100vw - 48px);
-  animation: ui-pop 0.16s var(--ease-spring) both;
+  animation: modal-in 0.4s var(--ease-spring) both;
+  transition: opacity 0.22s var(--ease-out-quart), transform 0.22s var(--ease-out-quart);
+}
+
+html[data-theme='dark'] .modal {
+  background: rgba(38, 38, 40, 0.75);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    backdrop-filter: saturate(180%) blur(0px);
+    -webkit-backdrop-filter: saturate(180%) blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+}
+
+.modal-mask.closing .modal {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
 }
 
 .modal-text {
@@ -1008,7 +1041,9 @@ body.dnd-drag .resizer {
   bottom: 42px;
   left: 0;
   right: 0;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   box-shadow: var(--sh-overlay);
@@ -1019,6 +1054,10 @@ body.dnd-drag .resizer {
   gap: 2px;
   animation: ui-pop 0.22s var(--ease-spring) both;
   transform-origin: bottom center;
+}
+
+html[data-theme='dark'] .add-module-menu {
+  background: rgba(44, 44, 46, 0.78);
 }
 
 .add-module-item {
@@ -1573,6 +1612,32 @@ html[data-theme='dark'] .toast {
   to {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* ---------- 降级：弱透明度 / 高对比度 ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  .modal,
+  html[data-theme='dark'] .modal,
+  .add-module-menu,
+  html[data-theme='dark'] .add-module-menu {
+    background: var(--panel);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .modal,
+  .add-module-menu {
+    background: var(--panel);
+    border-color: rgba(0, 0, 0, 0.5);
+  }
+
+  html[data-theme='dark'] .modal,
+  html[data-theme='dark'] .add-module-menu {
+    border-color: rgba(255, 255, 255, 0.5);
   }
 }
 

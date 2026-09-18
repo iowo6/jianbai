@@ -21,6 +21,17 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
   const showToast = useStore((s) => s.showToast)
   const [helpOpen, setHelpOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<ResumeData | null>(null)
+  const [deleteClosing, setDeleteClosing] = useState(false)
+
+  /** 关闭删除确认：先播放退场过渡再卸载（与入场同路径） */
+  const dismissDelete = () => {
+    if (deleteClosing) return
+    setDeleteClosing(true)
+    window.setTimeout(() => {
+      setPendingDelete(null)
+      setDeleteClosing(false)
+    }, 220)
+  }
 
   const doImportFile = async () => {
     const res = await api.importParse()
@@ -150,11 +161,11 @@ export function Rail({ resumes, activeId }: { resumes: ResumeData[]; activeId: s
       </div>
 
       {pendingDelete && (
-        <div className="modal-mask" onClick={() => setPendingDelete(null)}>
+        <div className={`modal-mask ${deleteClosing ? 'closing' : ''}`} onClick={dismissDelete}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <p className="modal-text">确定删除「{pendingDelete.name}」？该操作不可恢复。</p>
             <div className="modal-actions">
-              <Button onClick={() => setPendingDelete(null)}>取消</Button>
+              <Button onClick={dismissDelete}>取消</Button>
               <Button variant="danger" onClick={confirmRemove}>
                 删除
               </Button>
