@@ -713,16 +713,22 @@ body.dnd-drag .resizer {
 .content-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+}
+
+.content-panel > .add-module-wrap {
+  margin-top: 10px;
 }
 
 .module-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--panel);
   overflow: visible;
   /* 只做透明度淡入：transform 关键帧会锁死 dnd-kit 拖拽的内联位移，不能用 */
   animation: ui-fade 0.24s ease both;
+}
+
+/* 同类模块共用一个白色面板，模块之间只留发丝线 */
+.module-card + .module-card {
+  border-top: 1px solid var(--border);
 }
 
 /* 模块折叠：grid-template-rows 平滑过渡 */
@@ -741,11 +747,6 @@ body.dnd-drag .resizer {
   overflow: hidden;
 }
 
-.module-card.collapsed .module-head {
-  border-bottom: none;
-  border-radius: var(--radius);
-}
-
 .chev-btn {
   color: var(--muted);
 }
@@ -759,8 +760,9 @@ body.dnd-drag .resizer {
 }
 
 .module-card.dragging {
+  background: var(--panel);
+  border-radius: var(--r-md);
   box-shadow: var(--sh-lift);
-  opacity: 0.9;
 }
 
 .module-card.collapsed {
@@ -776,9 +778,6 @@ body.dnd-drag .resizer {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: var(--panel-2);
-  border-bottom: 1px solid var(--border);
-  border-radius: var(--radius) var(--radius) 0 0;
   cursor: pointer;
   user-select: none;
 }
@@ -808,28 +807,35 @@ body.dnd-drag .resizer {
   font-size: 12px;
 }
 
+.module-card:not(.collapsed) .module-body {
+  border-top: 1px solid var(--border);
+}
+
 .module-body {
-  padding: 10px;
+  padding: 8px 10px 12px;
 }
 
 .module-body > .edit-form > * + *,
-.module-body > .items-editor > * + *,
+.module-body > .items-editor > .add-item-btn,
+.module-body > .items-editor > .form-hint,
 .module-body > .rte + * {
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 /* 条目卡片 */
 
 .item-card {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  margin-bottom: 8px;
-  background: var(--panel);
+  background: transparent;
+}
+
+.item-card + .item-card {
+  border-top: 1px solid var(--border);
 }
 
 .item-card.dragging {
+  background: var(--panel);
+  border-radius: var(--r-md);
   box-shadow: var(--sh-lift);
-  opacity: 0.95;
   position: relative;
   z-index: 5;
 }
@@ -844,13 +850,13 @@ body.dnd-drag .resizer {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 9px;
+  padding: 8px 9px;
   cursor: pointer;
   user-select: none;
 }
 
 .item-head:hover {
-  background: var(--panel-2);
+  background: var(--hover);
 }
 
 .chev {
@@ -898,7 +904,7 @@ body.dnd-drag .resizer {
 
 .item-body-inner {
   padding: 4px 9px 9px;
-  border-top: 1px dashed var(--border);
+  border-top: 1px solid var(--border);
 }
 
 .item-body-inner > * + * {
