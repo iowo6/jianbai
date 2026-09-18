@@ -469,7 +469,7 @@ body.dnd-drag .resizer {
 
 /* 模态弹窗 = 真实层叠 → 液态玻璃；入场材质化（模糊+缩放+透明度一起），退场同路径 */
 .modal {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid var(--border);
@@ -483,7 +483,7 @@ body.dnd-drag .resizer {
 }
 
 html[data-theme='dark'] .modal {
-  background: rgba(38, 38, 40, 0.75);
+  background: rgba(38, 38, 40, 0.85);
 }
 
 @keyframes modal-in {
@@ -504,6 +504,31 @@ html[data-theme='dark'] .modal {
 .modal-mask.closing .modal {
   opacity: 0;
   transform: translateY(10px) scale(0.98);
+}
+
+/* 玻璃上的按钮给实底，浮在磨砂层之上 */
+.modal .btn {
+  font-weight: 500;
+}
+
+.modal .btn-ghost {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.modal .btn-ghost:hover {
+  background: #fff;
+}
+
+.modal .btn-danger {
+  background: var(--danger-soft);
+}
+
+html[data-theme='dark'] .modal .btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='dark'] .modal .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .modal-text {
@@ -1041,7 +1066,7 @@ html[data-theme='dark'] .modal {
   bottom: 42px;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid var(--border);
@@ -1057,7 +1082,7 @@ html[data-theme='dark'] .modal {
 }
 
 html[data-theme='dark'] .add-module-menu {
-  background: rgba(44, 44, 46, 0.78);
+  background: rgba(44, 44, 46, 0.85);
 }
 
 .add-module-item {
@@ -1067,9 +1092,10 @@ html[data-theme='dark'] .add-module-menu {
   padding: 7px 10px;
   border: none;
   background: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12.5px;
+  font-weight: 500;
   color: var(--text);
 }
 
