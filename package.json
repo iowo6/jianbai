@@ -1,7 +1,7 @@
 {
   "name": "jianbai",
   "productName": "简白",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "简白 · 本地优先、所见即所得的极简简历编辑器，支持导出与预览一致的 ATS 友好 PDF",
   "private": true,
   "main": "electron/main.cjs",
