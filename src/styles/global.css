@@ -2,25 +2,80 @@
    编辑器 UI 全局样式（浅色 · 简洁）
    ============================================================ */
 
+/* Apple Liquid Glass 设计 token（skill: apple-liquid-glass）
+   原则：冷灰白底 + 统一白色表面 + 发丝分隔线；玻璃只用于真正层叠之处 */
+
 :root {
-  --bg: #f3f4f6;
+  /* 中性骨架 */
+  --bg: #f5f5f7;
   --panel: #ffffff;
-  --panel-2: #fafafa;
-  --border: #e5e7eb;
-  --text: #1f2328;
-  --muted: #6b7280;
-  --accent: #2f6fed;
-  --accent-hover: #265cd1;
-  --accent-soft: #eef3fe;
-  --danger: #dc2626;
-  --soft: #eef0f3;
-  --soft-hover: #e5e8ec;
-  --hover: #eceef1;
-  --switch-off: #d5d9df;
-  --scrollbar: #d1d5db;
-  --scrollbar-hover: #b3b8bf;
-  --toast-bg: #1f2328;
-  --radius: 8px;
+  --panel-2: #fbfbfd;
+  --border: rgba(0, 0, 0, 0.08);
+  --text: #1d1d1f;
+  --text-2: #424245;
+  --muted: #6e6e73;
+  --text-3: #86868b;
+  --text-4: #aeaeb2;
+  --faint: #d2d2d7;
+  /* 强调色（仅点缀） */
+  --accent: #0071e3;
+  --accent-hover: #0066cc;
+  --accent-soft: rgba(0, 113, 227, 0.08);
+  --accent-ring: rgba(0, 113, 227, 0.22);
+  --accent-border: rgba(0, 113, 227, 0.25);
+  --danger: #ff3b30;
+  --danger-soft: rgba(255, 59, 48, 0.1);
+  --live: #30d158;
+  /* 填充灰 */
+  --soft: rgba(120, 120, 128, 0.1);
+  --soft-hover: rgba(120, 120, 128, 0.16);
+  --hover: rgba(120, 120, 128, 0.08);
+  --switch-off: #e8e8ed;
+  --scrollbar: #d2d2d7;
+  --scrollbar-hover: #aeaeb2;
+  --toast-bg: #1d1d1f;
+  /* 圆角层级：控件 6 / 弹出菜单 12 / 模态弹窗 16 */
+  --radius: 6px;
+  --r-md: 12px;
+  --r-sheet: 16px;
+  /* 阴影（两层：贴地 + 漫射） */
+  --sh-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+  --sh-panel: 0 1px 3px rgba(0, 0, 0, 0.05), 0 14px 40px rgba(0, 0, 0, 0.05);
+  --sh-lift: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --sh-overlay: 0 2px 8px rgba(0, 0, 0, 0.1), 0 30px 80px rgba(0, 0, 0, 0.24);
+  /* 缓动 */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html[data-theme='dark'] {
+  --bg: #1b1b1d;
+  --panel: #262628;
+  --panel-2: #2c2c2e;
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #f5f5f7;
+  --text-2: #e8e8ed;
+  --muted: #98989d;
+  --text-3: #98989d;
+  --text-4: #7c7c80;
+  --faint: #48484a;
+  --accent: #0a84ff;
+  --accent-hover: #409cff;
+  --accent-soft: rgba(10, 132, 255, 0.16);
+  --accent-ring: rgba(10, 132, 255, 0.35);
+  --accent-border: rgba(10, 132, 255, 0.4);
+  --danger: #ff453a;
+  --danger-soft: rgba(255, 69, 58, 0.16);
+  --soft: rgba(120, 120, 128, 0.2);
+  --soft-hover: rgba(120, 120, 128, 0.28);
+  --hover: rgba(120, 120, 128, 0.12);
+  --switch-off: #48484a;
+  --scrollbar: #48484a;
+  --scrollbar-hover: #5a5a5e;
+  --toast-bg: #39393d;
+  --sh-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --sh-lift: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --sh-overlay: 0 2px 8px rgba(0, 0, 0, 0.4), 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 
 html[data-theme='dark'] {
@@ -61,14 +116,11 @@ html[data-theme='dark'] {
 }
 
 @keyframes ui-pop {
-  0% {
+  from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.96);
   }
-  70% {
-    transform: scale(1.02);
-  }
-  100% {
+  to {
     opacity: 1;
     transform: scale(1);
   }
@@ -100,7 +152,11 @@ body,
 }
 
 body {
-  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* 系统字体栈：macOS 走 SF / 苹方，Windows 走 Segoe UI Variable / 雅黑（仅编辑器外壳，不影响简历纸张） */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Segoe UI Variable Text', 'Segoe UI', 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  font-optical-sizing: auto;
   font-size: 13px;
   color: var(--text);
   background: var(--bg);
@@ -216,6 +272,7 @@ body.dnd-drag .resizer {
 .brand-name {
   font-size: 15px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .brand-sub {
@@ -253,7 +310,7 @@ body.dnd-drag .resizer {
 
 .resume-item.active {
   background: var(--accent-soft);
-  border-color: #d3e2fc;
+  border-color: var(--accent-border);
 }
 
 .resume-item-main {
@@ -270,6 +327,7 @@ body.dnd-drag .resizer {
 
 .resume-item-time {
   font-size: 11px;
+  font-variant-numeric: tabular-nums;
   color: var(--muted);
   margin-top: 2px;
 }
@@ -328,14 +386,15 @@ body.dnd-drag .resizer {
 .save-hint {
   color: var(--muted);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
 .save-hint svg {
-  color: #16a34a;
-  animation: ui-pop 0.3s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+  color: var(--live);
+  animation: ui-pop 0.3s var(--ease-spring) both;
 }
 
 .topbar-divider {
@@ -377,11 +436,11 @@ body.dnd-drag .resizer {
 
 .shortcut-row .keys {
   color: var(--muted);
-  font-family: Consolas, monospace;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   font-size: 11px;
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 1px 6px;
   white-space: nowrap;
 }
@@ -406,12 +465,12 @@ body.dnd-drag .resizer {
 .modal {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  border-radius: var(--r-sheet);
+  box-shadow: var(--sh-overlay);
   padding: 18px;
   width: 340px;
   max-width: calc(100vw - 48px);
-  animation: ui-pop 0.16s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+  animation: ui-pop 0.16s var(--ease-spring) both;
 }
 
 .modal-text {
@@ -480,7 +539,7 @@ body.dnd-drag .resizer {
 }
 
 .tab-body > * {
-  animation: ui-fade-slide 0.26s cubic-bezier(0.25, 0.8, 0.35, 1) both;
+  animation: ui-fade-slide 0.26s var(--ease-out-quart) both;
 }
 
 /* ---------- 按钮 / 输入 ---------- */
@@ -530,7 +589,7 @@ body.dnd-drag .resizer {
 }
 
 .btn-ghost:hover {
-  background: #f3f4f6;
+  background: var(--hover);
 }
 
 .btn-soft {
@@ -549,7 +608,7 @@ body.dnd-drag .resizer {
 }
 
 .btn-danger:hover {
-  background: #fdecec;
+  background: var(--danger-soft);
 }
 
 .btn:disabled {
@@ -583,7 +642,7 @@ body.dnd-drag .resizer {
 .textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.12);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .field {
@@ -641,7 +700,7 @@ body.dnd-drag .resizer {
 }
 
 .icon-btn.danger:hover {
-  background: #fdecec;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -670,7 +729,7 @@ body.dnd-drag .resizer {
 .mod-collapse {
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 0.26s cubic-bezier(0.25, 0.8, 0.35, 1);
+  transition: grid-template-rows 0.26s var(--ease-out-quart);
 }
 
 .module-card.collapsed .mod-collapse {
@@ -700,7 +759,7 @@ body.dnd-drag .resizer {
 }
 
 .module-card.dragging {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--sh-lift);
   opacity: 0.9;
 }
 
@@ -769,7 +828,7 @@ body.dnd-drag .resizer {
 }
 
 .item-card.dragging {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--sh-lift);
   opacity: 0.95;
   position: relative;
   z-index: 5;
@@ -815,6 +874,7 @@ body.dnd-drag .resizer {
 
 .item-dates {
   font-size: 11px;
+  font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
 
@@ -822,7 +882,7 @@ body.dnd-drag .resizer {
 .item-collapse {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.24s cubic-bezier(0.25, 0.8, 0.35, 1);
+  transition: grid-template-rows 0.24s var(--ease-out-quart);
 }
 
 .item-card.open .item-collapse {
@@ -944,14 +1004,14 @@ body.dnd-drag .resizer {
   right: 0;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-overlay);
   padding: 6px;
   z-index: 30;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
-  animation: ui-pop 0.22s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+  animation: ui-pop 0.22s var(--ease-spring) both;
   transform-origin: bottom center;
 }
 
@@ -990,7 +1050,7 @@ body.dnd-drag .resizer {
 
 .tags-editor:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.12);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .tag-chip {
@@ -999,7 +1059,7 @@ body.dnd-drag .resizer {
   gap: 2px;
   max-width: 100%;
   padding: 1px 3px 1px 8px;
-  border-radius: 5px;
+  border-radius: var(--radius);
   background: var(--soft);
   font-size: 12px;
   line-height: 20px;
@@ -1017,7 +1077,7 @@ body.dnd-drag .resizer {
   height: 16px;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   background: none;
   color: var(--muted);
   cursor: pointer;
@@ -1053,7 +1113,7 @@ body.dnd-drag .resizer {
   height: 20px;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius);
   background: var(--panel);
   color: var(--muted);
   cursor: pointer;
@@ -1117,7 +1177,7 @@ body.dnd-drag .resizer {
 
 .rte-area[data-placeholder]:empty::before {
   content: attr(data-placeholder);
-  color: #9ca3af;
+  color: var(--text-4);
 }
 
 .rte-area ul,
@@ -1155,7 +1215,7 @@ body.dnd-drag .resizer {
 }
 
 .group-title svg {
-  color: #9ca3af;
+  color: var(--text-3);
   flex: none;
 }
 
@@ -1179,7 +1239,7 @@ body.dnd-drag .resizer {
 }
 
 .template-card:hover {
-  border-color: #c7d2e5;
+  border-color: var(--faint);
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
@@ -1357,6 +1417,7 @@ body.dnd-drag .resizer {
 .zoom-val {
   min-width: 38px;
   text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .fit-btn {
@@ -1394,7 +1455,7 @@ body.dnd-drag .resizer {
 
 .preview-hint {
   font-size: 11px;
-  color: #b0b5bd;
+  color: var(--text-4);
   margin-left: 10px;
 }
 
@@ -1409,7 +1470,7 @@ body.dnd-drag .resizer {
 }
 
 .paper-scaled .rz-paper {
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.13);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
 .page-guide {
@@ -1447,6 +1508,8 @@ body.dnd-drag .resizer {
 .empty-home h2 {
   color: var(--text);
   margin: 6px 0 0;
+  letter-spacing: -0.02em;
+  font-size: 21px;
 }
 
 .empty-actions {
@@ -1489,7 +1552,7 @@ body.dnd-drag .resizer {
   font-size: 13px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
   z-index: 100;
-  animation: toast-in 0.25s cubic-bezier(0.25, 0.9, 0.35, 1.2) both;
+  animation: toast-in 0.25s var(--ease-spring) both;
 }
 
 html[data-theme='dark'] .toast {
